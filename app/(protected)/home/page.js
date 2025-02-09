@@ -48,6 +48,12 @@ export default function HomePage() {
           >
             Daily Routine
           </button>
+          <button
+            onClick={() => navigateTo('/profile')}
+            className="w-full bg-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-shadow text-lg font-medium text-gray-700 hover:bg-gray-50"
+          >
+            Profile
+          </button>
         </div>
       </main>
     </div>
