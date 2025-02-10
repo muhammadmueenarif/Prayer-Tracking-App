@@ -14,10 +14,12 @@ app.use(cors());
 const authRoutes = require("./routes/authRoutes");
 const dailyRoutineRoutes = require("./routes/dailyRoutineRoutes");
 const prayerRoutes = require("./routes/prayerRoutes")
+const profileRoutes = require("./routes/profileRoutes");
 
 app.use("/api/auth", authRoutes);
 app.use("/api", dailyRoutineRoutes);
 app.use("/api", prayerRoutes); 
+app.use("/api", profileRoutes);
 
 app.get('/', (req, res) => {
   res.status(200).json({ message: 'Prayer Tracker API' });
