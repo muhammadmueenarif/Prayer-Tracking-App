@@ -11,15 +11,24 @@ export default function SignupPage() {
 
   const handleSignup = async (email, password, username) => {
     try {
-      // Basic validation
       if (!email || !password || !username) {
         throw new Error('Please fill all fields');
       }
-      
-      // Mock signup process
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // After successful signup, log the user in
+
+      const response = await fetch('http://localhost:5500/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, username }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Signup failed');
+      }
+
+      // Auto-login after successful signup
       await login(email, password);
       router.push('/home');
     } catch (error) {

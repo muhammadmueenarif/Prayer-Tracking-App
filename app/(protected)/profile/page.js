@@ -1,10 +1,12 @@
 'use client'
 import { useState } from "react";
 import Image from "next/image";
+import { useRouter } from 'next/navigation'; 
 
 export default function Profile() {
   const [profilePic, setProfilePic] = useState(null);
   const [bio, setBio] = useState("");
+  const router = useRouter(); 
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -13,8 +15,28 @@ export default function Profile() {
     }
   };
 
+  const handleBack = () => {
+    router.push('/home'); 
+  };
+
+  const handleLogout = () => {
+    router.push('/login'); 
+  };
+
   return (
     <div className="max-w-lg mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
+      {/* Back and Logout buttons */}
+      <button 
+        onClick={handleBack} 
+        className="absolute top-4 left-4 bg-gray-500 text-white px-4 py-2 rounded">
+        Back
+      </button>
+      <button 
+        onClick={handleLogout} 
+        className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded">
+        Logout
+      </button>
+      
       <h2 className="text-2xl font-semibold text-center mb-4">Profile</h2>
       
       {/* Profile Picture */}
