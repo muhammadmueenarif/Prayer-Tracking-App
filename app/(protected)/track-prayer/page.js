@@ -1,6 +1,6 @@
-'use client';
+'use client'
 import { useRouter } from 'next/navigation';
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '@/app/context/AuthContext';
 
 export default function TrackPrayerPage() {
@@ -10,29 +10,119 @@ export default function TrackPrayerPage() {
 
   // State for each prayer's status
   const [prayers, setPrayers] = useState({
-    fajr: 'offered',
-    zohar: 'offered',
-    asar: 'offered',
-    maghrib: 'offered',
-    isha: 'offered',
+    fajr: 'Not Offered',
+    zohar: 'Not Offered',
+    asar: 'Not Offered',
+    maghrib: 'Not Offered',
+    isha: 'Not Offered',
   });
+
+  // Fetch prayer statuses on component mount
+  useEffect(() => {
+    const fetchPrayerStatus = async () => {
+      try {
+        const response = await fetch(`http://localhost:5500/api/prayer/${selectedDate}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+  
+        if (response.ok) {
+          const { data } = await response.json(); // Destructure data from response
+          console.log("API Response:", data); // Log to inspect the data structure
+  
+          // Initialize prayers object with default "Not Offered" status
+          const updatedPrayers = {
+            fajr: 'Not Offered',
+            zohar: 'Not Offered',
+            asar: 'Not Offered',
+            maghrib: 'Not Offered',
+            isha: 'Not Offered',
+          };
+  
+          // Check if the data contains status for each prayer and update
+          for (const [prayer, status] of Object.entries(data)) {
+            if (updatedPrayers.hasOwnProperty(prayer)) {
+              updatedPrayers[prayer] = status; // Set the status if prayer exists
+            }
+          }
+  
+          // Set the state with the updated prayer statuses
+          setPrayers(updatedPrayers);
+          console.log("Prayer statuses fetched and updated:", updatedPrayers);
+        } else {
+          console.error('Failed to fetch prayer statuses');
+        }
+      } catch (error) {
+        console.error('Error fetching prayer statuses:', error);
+      }
+    };
+  
+    fetchPrayerStatus();
+  }, [selectedDate]);
+  
+  
+   
+  
 
   const handleStatusChange = (prayer, status) => {
     setPrayers(prev => ({ ...prev, [prayer]: status }));
   };
 
-  const handleSave = (prayer) => {
-    console.log('Saving:', prayer, prayers[prayer]);
-  // Show alert after save
-  alert(`${prayer.charAt(0).toUpperCase() + prayer.slice(1)} status saved.`);
-  // Add save logic here
+  const handleSave = async (prayer) => {
+    try {
+      const response = await fetch('http://localhost:5500/api/prayer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          date: selectedDate,
+          prayerName: prayer,
+          status: prayers[prayer],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save prayer status');
+      }
+
+      const data = await response.json();
+      alert(`${prayer.charAt(0).toUpperCase() + prayer.slice(1)} status saved.`);
+    } catch (error) {
+      console.error("Error saving prayer:", error);
+      alert("Error saving prayer status.");
+    }
   };
 
-  const handleUpdate = (prayer) => {
-    console.log('Updating:', prayer, prayers[prayer]);
-  // Show alert after update
-  alert(`${prayer.charAt(0).toUpperCase() + prayer.slice(1)} status updated.`);
-  // Add update logic here
+  const handleUpdate = async (prayer) => {
+    try {
+      const response = await fetch('http://localhost:5500/api/prayer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          date: selectedDate,
+          prayerName: prayer,
+          status: prayers[prayer],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update prayer status');
+      }
+
+      const data = await response.json();
+      alert(`${prayer.charAt(0).toUpperCase() + prayer.slice(1)} status updated.`);
+    } catch (error) {
+      console.error("Error updating prayer:", error);
+      alert("Error updating prayer status.");
+    }
   };
 
   const handleLogout = () => {
@@ -101,7 +191,7 @@ export default function TrackPrayerPage() {
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
-                  {['offered', 'not offered', 'qazaa'].map((status) => (
+                  {['Offered', 'Not Offered', 'Qazaa'].map((status) => (
                     <button
                       key={status}
                       onClick={() => handleStatusChange(prayer, status)}
