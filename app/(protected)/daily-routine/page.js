@@ -1,6 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '@/app/context/AuthContext';
 
 export default function DailyRoutinePage() {
@@ -8,35 +8,120 @@ export default function DailyRoutinePage() {
   const { logout } = useContext(AuthContext);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [routine, setRoutine] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [routineNotFound, setRoutineNotFound] = useState(false);
+  const [statusMessage, setStatusMessage] = useState(''); // To show status messages (Saving, Updating)
 
-  const handleSave = () => {
-    // Check if routine is empty
+  // Fetch the routine when the date is changed
+  const fetchRoutine = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5500/api/routine/${selectedDate}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setRoutine(data.data ? data.data.text : ''); // Show the routine if available
+        setRoutineNotFound(!data.data); // If no routine found, set routineNotFound to true
+      } else {
+        setRoutine(''); // Clear routine if no data
+        setRoutineNotFound(true); // Routine not found
+      }
+    } catch (error) {
+      console.error('Error fetching routine:', error);
+      alert('Failed to fetch routine');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle saving the routine (POST request)
+  const handleSave = async () => {
     if (!routine.trim()) {
       alert('Please enter something to save.');
       return;
     }
-    
-    // Add save logic here
-    console.log('Saving routine:', { date: selectedDate, routine });
-    alert('Daily routine saved successfully!');
+
+    try {
+      setStatusMessage('Saving...'); // Show saving message
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5500/api/routine', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ date: selectedDate, text: routine }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert(data.message);
+        fetchRoutine(); // Refetch the routine after saving
+      } else {
+        alert(data.message || 'Failed to save routine');
+      }
+    } catch (error) {
+      console.error('Error saving routine:', error);
+      alert('Failed to save routine');
+    } finally {
+      setStatusMessage(''); // Clear status message after saving
+      setLoading(false);
+    }
   };
 
-  const handleUpdate = () => {
-    // Check if routine is empty
+  // Handle updating the routine (POST request)
+  const handleUpdate = async () => {
     if (!routine.trim()) {
       alert('Please enter something to update.');
       return;
     }
-    
-    // Add update logic here
-    console.log('Updating routine:', { date: selectedDate, routine });
-    alert('Daily routine updated successfully!');
+
+    try {
+      setStatusMessage('Updating...'); // Show updating message
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5500/api/routine', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ date: selectedDate, text: routine }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert(data.message);
+        fetchRoutine(); // Refetch the routine after updating
+      } else {
+        alert(data.message || 'Failed to update routine');
+      }
+    } catch (error) {
+      console.error('Error updating routine:', error);
+      alert('Failed to update routine');
+    } finally {
+      setStatusMessage(''); // Clear status message after updating
+      setLoading(false);
+    }
   };
 
+  // Handle logout
   const handleLogout = () => {
     logout();
     router.push('/');
   };
+
+  // Fetch routine when the page loads or when the selected date changes
+  useEffect(() => {
+    fetchRoutine();
+  }, [selectedDate]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -90,17 +175,33 @@ export default function DailyRoutinePage() {
             />
           </div>
 
+          {/* Show message if no routine found */}
+          {routineNotFound && (
+            <div className="text-sm text-red-500 mt-2">
+              No routine found for this date. Please enter something to save.
+            </div>
+          )}
+
+          {/* Status message (Saving, Updating, etc.) */}
+          {statusMessage && (
+            <div className="text-sm text-blue-500 mt-2">
+              {statusMessage}
+            </div>
+          )}
+
           {/* Action Buttons */}
           <div className="flex gap-4">
             <button
               onClick={handleSave}
               className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+              disabled={loading}
             >
               Save
             </button>
             <button
               onClick={handleUpdate}
               className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"
+              disabled={loading}
             >
               Update
             </button>
