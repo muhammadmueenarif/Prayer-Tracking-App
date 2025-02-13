@@ -1,23 +1,38 @@
+// pages/login.js
 'use client';
 import { useRouter } from 'next/navigation';
-import { useContext, useState } from 'react';
-import AuthForm from '../../components/AuthForm';
+import { useState, useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
+import AuthForm from '../../components/AuthForm';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, loading } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
   const [error, setError] = useState('');
 
   const handleLogin = async (email, password) => {
     try {
-      // Basic validation
       if (!email || !password) {
         throw new Error('Please enter both email and password');
       }
-      
-      await login(email, password);
-      router.push('/home');
+
+      const response = await fetch('http://localhost:5500/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+
+      // Call the login function from context to update auth state
+      login(data.token);
+
     } catch (error) {
       setError(error.message);
     }
@@ -25,7 +40,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <AuthForm isLogin={true} onSubmit={handleLogin} isLoading={loading} />
+      <AuthForm isLogin={true} onSubmit={handleLogin} />
       <div className="text-center pb-8">
         <p className="text-sm text-gray-600">
           Don't have an account?{' '}

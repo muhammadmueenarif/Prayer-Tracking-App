@@ -1,3 +1,4 @@
+// pages/home.js
 'use client';
 import { useRouter } from 'next/navigation';
 import { useContext, useEffect } from 'react';
@@ -11,17 +12,14 @@ export default function HomePage() {
     if (!isAuthenticated) {
       router.push('/');
     }
-  }, [isAuthenticated, router]);    
+  }, [isAuthenticated, router]);
 
   const handleLogout = () => {
     logout();
-    router.push('/');
   };
 
-  // ... rest of the home page component
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header with Logout Button */}
       <header className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4 flex justify-end">
           <button
@@ -33,23 +31,22 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="flex flex-col items-center justify-center min-h-[calc(100vh-160px)]">
         <div className="space-y-4 w-full max-w-md px-4">
           <button
-            onClick={() => navigateTo('/track-prayer')}
+            onClick={() => router.push('/track-prayer')}
             className="w-full bg-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-shadow text-lg font-medium text-gray-700 hover:bg-gray-50"
           >
             Track Prayer
           </button>
           <button
-            onClick={() => navigateTo('/daily-routine')}
+            onClick={() => router.push('/daily-routine')}
             className="w-full bg-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-shadow text-lg font-medium text-gray-700 hover:bg-gray-50"
           >
             Daily Routine
           </button>
           <button
-            onClick={() => navigateTo('/profile')}
+            onClick={() => router.push('/profile')}
             className="w-full bg-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-shadow text-lg font-medium text-gray-700 hover:bg-gray-50"
           >
             Profile
