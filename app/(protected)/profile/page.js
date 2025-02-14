@@ -1,26 +1,83 @@
 'use client'
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { useRouter } from 'next/navigation'; 
+import { useRouter } from 'next/navigation';
 
 export default function Profile() {
-  const [profilePic, setProfilePic] = useState(null);
-  const [bio, setBio] = useState("");
-  const router = useRouter(); 
+  const [profilePic, setProfilePic] = useState(null);  // For the profile picture (not needed for this task)
+  const [bio, setBio] = useState("");  // To hold the bio
+  const [userInfo, setUserInfo] = useState({ username: "", email: "", password: "" });
+  const router = useRouter();
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setProfilePic(URL.createObjectURL(file));
+  // Function to fetch user info (username, email, password) and bio
+  const fetchUserInfo = async () => {
+    try {
+      const res = await fetch("http://localhost:5500/api/profile/info", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`, // Use token stored in localStorage
+        },
+      });
+      const data = await res.json();
+      if (data.username) {
+        setUserInfo({ username: data.username, email: data.email, password: data.password });
+      }
+    } catch (error) {
+      console.error("Error fetching user info:", error);
     }
   };
 
+  const fetchBio = async () => {
+    try {
+      const res = await fetch("http://localhost:5500/api/profile/bio", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      const data = await res.json();
+      if (data.bio) {
+        setBio(data.bio);
+      }
+    } catch (error) {
+      console.error("Error fetching bio:", error);
+    }
+  };
+
+  const saveBio = async () => {
+    try {
+      const res = await fetch("http://localhost:5500/api/profile/bio", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ bio }),
+      });
+
+      const data = await res.json();
+      if (data.message === "Bio updated successfully.") {
+        alert("Bio updated successfully!");
+      } else {
+        alert("Error updating bio");
+      }
+    } catch (error) {
+      console.error("Error saving bio:", error);
+    }
+  };
+
+  // Fetch user info and bio when the component mounts
+  useEffect(() => {
+    fetchUserInfo();
+    fetchBio();
+  }, []);
+
   const handleBack = () => {
-    router.push('/home'); 
+    router.push('/home');
   };
 
   const handleLogout = () => {
-    router.push('/login'); 
+    router.push('/login');
   };
 
   return (
@@ -36,20 +93,14 @@ export default function Profile() {
         className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded">
         Logout
       </button>
-      
+
       <h2 className="text-2xl font-semibold text-center mb-4">Profile</h2>
-      
-      {/* Profile Picture */}
-      <div className="flex flex-col items-center mb-4">
-        {profilePic ? (
-          <Image src={profilePic} alt="Profile" width={100} height={100} className="rounded-full" />
-        ) : (
-          <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center">
-            No Image
-          </div>
-        )}
-        <input type="file" className="mt-2" onChange={handleImageChange} />
-        <button className="mt-2 bg-blue-500 text-white px-4 py-1 rounded">Save</button>
+
+      {/* User Info */}
+      <div className="bg-gray-100 p-4 rounded mb-4">
+        <p><strong>Username:</strong> {userInfo.username}</p>
+        <p><strong>Email:</strong> {userInfo.email}</p>
+        <p><strong>Password:</strong> ********</p>
       </div>
 
       {/* Bio Section */}
@@ -61,14 +112,11 @@ export default function Profile() {
           value={bio}
           onChange={(e) => setBio(e.target.value)}
         ></textarea>
-        <button className="mt-2 bg-green-500 text-white px-4 py-1 rounded">Save</button>
-      </div>
-
-      {/* User Info */}
-      <div className="bg-gray-100 p-4 rounded">
-        <p><strong>Username:</strong> user123</p>
-        <p><strong>Email:</strong> user@example.com</p>
-        <p><strong>Password:</strong> ********</p>
+        <button 
+          onClick={saveBio}
+          className="mt-2 bg-green-500 text-white px-4 py-1 rounded">
+          Save Bio
+        </button>
       </div>
     </div>
   );
