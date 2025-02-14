@@ -128,10 +128,10 @@ export default function DailyRoutinePage() {
   }, [selectedDate]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-r from-green-100 via-blue-100 to-purple-100">
       {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+      <header className="bg-white shadow-lg py-4">
+        <div className="container mx-auto px-6 flex justify-between items-center">
           <button
             onClick={() => router.push('/home')}
             className="text-sm font-medium text-gray-700 hover:text-gray-900 px-4 py-2 rounded-md hover:bg-gray-100 transition-colors"
@@ -148,11 +148,11 @@ export default function DailyRoutinePage() {
       </header>
 
       {/* Main Content */}
-      <main className="flex flex-col items-center justify-center min-h-[calc(100vh-160px)] p-4">
-        <div className="w-full max-w-md space-y-6">
+      <main className="flex flex-col items-center justify-center min-h-[calc(100vh-160px)] p-6">
+        <div className="w-full max-w-lg space-y-8 bg-white rounded-lg shadow-lg p-6">
           {/* Date Selection */}
           <div>
-            <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-2">
               Select Date
             </label>
             <input
@@ -160,13 +160,13 @@ export default function DailyRoutinePage() {
               id="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             />
           </div>
 
           {/* Routine Input */}
           <div>
-            <label htmlFor="routine" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="routine" className="block text-sm font-medium text-gray-700 mb-2">
               Daily Routine
             </label>
             <textarea
@@ -174,7 +174,7 @@ export default function DailyRoutinePage() {
               value={routine}
               onChange={(e) => setRoutine(e.target.value)}
               rows={6}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
               placeholder="Enter your daily routine..."
             />
           </div>
@@ -194,17 +194,17 @@ export default function DailyRoutinePage() {
           )}
 
           {/* Action Buttons */}
-          <div className="flex gap-4">
+          <div className="flex gap-6 justify-between">
             <button
               onClick={handleSave}
-              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+              className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-all"
               disabled={loading}
             >
               Save
             </button>
             <button
               onClick={handleUpdate}
-              className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"
+              className="w-full bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition-all"
               disabled={loading}
             >
               Update

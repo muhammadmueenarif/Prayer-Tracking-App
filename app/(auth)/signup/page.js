@@ -42,33 +42,38 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <AuthForm isLogin={false} onSubmit={handleSignup} />
-      <div className="text-center pb-8">
-        <p className="text-sm text-gray-600">
-          Already have an account?{' '}
-          <button
-            onClick={() => router.push('/login')}
-            className="font-medium text-blue-600 hover:text-blue-500"
-          >
-            Login
-          </button>
-        </p>
+    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg">
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Create an Account</h2>
+        
+        <AuthForm isLogin={false} onSubmit={handleSignup} />
+        
+        <div className="text-center pb-8">
+          <p className="text-sm text-gray-600">
+            Already have an account?{' '}
+            <button
+              onClick={() => router.push('/login')}
+              className="font-medium text-blue-600 hover:text-blue-500"
+            >
+              Login
+            </button>
+          </p>
+        </div>
+
+        {/* Show the "Signing up..." message when the signup process is ongoing */}
+        {signingUp && (
+          <div className="fixed bottom-0 left-0 right-0 p-4 bg-blue-100 text-blue-700 text-center">
+            Signing up...
+          </div>
+        )}
+
+        {/* Show error message if any */}
+        {error && (
+          <div className="fixed bottom-0 left-0 right-0 p-4 bg-red-100 text-red-700 text-center">
+            {error}
+          </div>
+        )}
       </div>
-
-      {/* Show the "Signing up..." message when the signup process is ongoing */}
-      {signingUp && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-blue-100 text-blue-700 text-center">
-          Signing up...
-        </div>
-      )}
-
-      {/* Show error message if any */}
-      {error && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-red-100 text-red-700 text-center">
-          {error}
-        </div>
-      )}
     </div>
   );
 }
