@@ -30,9 +30,13 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
     router.push('/'); // Redirect to login page after logout
   };
+ // Add checkAuth function
+ const checkAuth = () => {
+  return isAuthenticated;
+};
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout,checkAuth }}>
       {children}
     </AuthContext.Provider>
   );

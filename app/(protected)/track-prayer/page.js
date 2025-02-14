@@ -5,7 +5,7 @@ import { AuthContext } from '@/app/context/AuthContext';
 
 export default function TrackPrayerPage() {
   const router = useRouter();
-  const { logout } = useContext(AuthContext);
+  const { logout, isAuthenticated } = useContext(AuthContext); // Access isAuthenticated directly
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
   // State for each prayer's status
@@ -17,55 +17,55 @@ export default function TrackPrayerPage() {
     isha: 'Not Offered',
   });
 
-  // Fetch prayer statuses on component mount
+  // Check if the user is authenticated on page load
   useEffect(() => {
-    const fetchPrayerStatus = async () => {
-      try {
-        const response = await fetch(`http://localhost:5500/api/prayer/${selectedDate}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-  
-        if (response.ok) {
-          const { data } = await response.json(); // Destructure data from response
-          console.log("API Response:", data); // Log to inspect the data structure
-  
-          // Initialize prayers object with default "Not Offered" status
-          const updatedPrayers = {
-            fajr: 'Not Offered',
-            zohar: 'Not Offered',
-            asar: 'Not Offered',
-            maghrib: 'Not Offered',
-            isha: 'Not Offered',
-          };
-  
-          // Check if the data contains status for each prayer and update
-          for (const [prayer, status] of Object.entries(data)) {
-            if (updatedPrayers.hasOwnProperty(prayer)) {
-              updatedPrayers[prayer] = status; // Set the status if prayer exists
-            }
+    if (!isAuthenticated) {
+      router.push('/login'); // Redirect to login if not authenticated
+    } else {
+      fetchPrayerStatus(); // Only fetch prayer statuses if authenticated
+    }
+  }, [isAuthenticated, selectedDate]);
+
+  const fetchPrayerStatus = async () => {
+    try {
+      const response = await fetch(`http://localhost:5500/api/prayer/${selectedDate}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (response.ok) {
+        const { data } = await response.json(); // Destructure data from response
+        console.log("API Response:", data); // Log to inspect the data structure
+
+        // Initialize prayers object with default "Not Offered" status
+        const updatedPrayers = {
+          fajr: 'Not Offered',
+          zohar: 'Not Offered',
+          asar: 'Not Offered',
+          maghrib: 'Not Offered',
+          isha: 'Not Offered',
+        };
+
+        // Check if the data contains status for each prayer and update
+        for (const [prayer, status] of Object.entries(data)) {
+          if (updatedPrayers.hasOwnProperty(prayer)) {
+            updatedPrayers[prayer] = status; // Set the status if prayer exists
           }
-  
-          // Set the state with the updated prayer statuses
-          setPrayers(updatedPrayers);
-          console.log("Prayer statuses fetched and updated:", updatedPrayers);
-        } else {
-          console.error('Failed to fetch prayer statuses');
         }
-      } catch (error) {
-        console.error('Error fetching prayer statuses:', error);
+
+        // Set the state with the updated prayer statuses
+        setPrayers(updatedPrayers);
+        console.log("Prayer statuses fetched and updated:", updatedPrayers);
+      } else {
+        console.error('Failed to fetch prayer statuses');
       }
-    };
-  
-    fetchPrayerStatus();
-  }, [selectedDate]);
-  
-  
-   
-  
+    } catch (error) {
+      console.error('Error fetching prayer statuses:', error);
+    }
+  };
 
   const handleStatusChange = (prayer, status) => {
     setPrayers(prev => ({ ...prev, [prayer]: status }));

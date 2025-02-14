@@ -1,7 +1,8 @@
-'use client'
+'use client';
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import { useRouter } from 'next/navigation';
+import { checkAuth } from "@/app/context/AuthContext"; // Or wherever it's located
+import { AuthContext } from '@/app/context/AuthContext';
 
 export default function Profile() {
   const [profilePic, setProfilePic] = useState(null);  // For the profile picture (not needed for this task)
@@ -9,13 +10,21 @@ export default function Profile() {
   const [userInfo, setUserInfo] = useState({ username: "", email: "", password: "" });
   const router = useRouter();
 
-  // Function to fetch user info (username, email, password) and bio
+  // Function to check if the user is authenticated
+  const checkAuth = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login"); // Redirect to login page if not authenticated
+    }
+  };
+
+  // Fetch user info (username, email, password) and bio
   const fetchUserInfo = async () => {
     try {
       const res = await fetch("http://localhost:5500/api/profile/info", {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${localStorage.getItem("token")}`, // Use token stored in localStorage
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
       });
       const data = await res.json();
@@ -68,6 +77,7 @@ export default function Profile() {
 
   // Fetch user info and bio when the component mounts
   useEffect(() => {
+    checkAuth();  // Check for authentication on page load
     fetchUserInfo();
     fetchBio();
   }, []);

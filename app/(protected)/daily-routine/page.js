@@ -5,7 +5,7 @@ import { AuthContext } from '@/app/context/AuthContext';
 
 export default function DailyRoutinePage() {
   const router = useRouter();
-  const { logout } = useContext(AuthContext);
+  const { logout, isAuthenticated, checkAuth } = useContext(AuthContext);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [routine, setRoutine] = useState('');
   const [loading, setLoading] = useState(false);
@@ -118,9 +118,13 @@ export default function DailyRoutinePage() {
     router.push('/');
   };
 
-  // Fetch routine when the page loads or when the selected date changes
+  // Check if user is authenticated and fetch routine on page load or when date is changed
   useEffect(() => {
-    fetchRoutine();
+    if (!checkAuth()) {
+      router.push('/login'); // Redirect to login if not authenticated
+    } else {
+      fetchRoutine();
+    }
   }, [selectedDate]);
 
   return (
